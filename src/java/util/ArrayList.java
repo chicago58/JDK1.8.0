@@ -106,16 +106,23 @@ import sun.misc.SharedSecrets;
 
 public class ArrayList<E> extends AbstractList<E>
         implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+        /**
+         * RandomAccess使其具有快速访问的能力
+         * Cloneable是标记接口，只有实现了该接口，在类中重写Object的clone()方法，然后通过类调用clone()方法才能克隆成功，否则不实现该接口，会抛出CloneNotSupportedException异常
+         * Serializable是序列化接口，支持序列化和反序列化
+         */
 {
     private static final long serialVersionUID = 8683452581122892189L;
 
     /**
      * Default initial capacity.
+     * 默认初始容量为10
      */
     private static final int DEFAULT_CAPACITY = 10;
 
     /**
      * Shared empty array instance used for empty instances.
+     * 空对象数组，用于空实例的创建
      */
     private static final Object[] EMPTY_ELEMENTDATA = {};
 
@@ -123,6 +130,7 @@ public class ArrayList<E> extends AbstractList<E>
      * Shared empty array instance used for default sized empty instances. We
      * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
      * first element is added.
+     * 使用无参构造创建集合时使用该对象
      */
     private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
 
@@ -131,12 +139,13 @@ public class ArrayList<E> extends AbstractList<E>
      * The capacity of the ArrayList is the length of this array buffer. Any
      * empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
      * will be expanded to DEFAULT_CAPACITY when the first element is added.
+     * 存放当前数据的对象数组
      */
     transient Object[] elementData; // non-private to simplify nested class access
 
     /**
      * The size of the ArrayList (the number of elements it contains).
-     *
+     * 集合的大小
      * @serial
      */
     private int size;
@@ -149,9 +158,10 @@ public class ArrayList<E> extends AbstractList<E>
      *         is negative
      */
     public ArrayList(int initialCapacity) {
+        // 初始化容量不为0时，根据初始化值创建数组
         if (initialCapacity > 0) {
             this.elementData = new Object[initialCapacity];
-        } else if (initialCapacity == 0) {
+        } else if (initialCapacity == 0) { // 初始化容量为0时，使用默认的空数组
             this.elementData = EMPTY_ELEMENTDATA;
         } else {
             throw new IllegalArgumentException("Illegal Capacity: "+
@@ -163,6 +173,7 @@ public class ArrayList<E> extends AbstractList<E>
      * Constructs an empty list with an initial capacity of ten.
      */
     public ArrayList() {
+        // 初始化默认为空数组
         this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
     }
 
@@ -173,6 +184,9 @@ public class ArrayList<E> extends AbstractList<E>
      *
      * @param c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
+     *
+     * 1、将集合转化为数组
+     * 2、判断数组长度是否为0。若为0，则赋值为空的对象数组；若不为0，则将数组赋值给对象数组
      */
     public ArrayList(Collection<? extends E> c) {
         elementData = c.toArray();
@@ -232,6 +246,7 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     private void ensureExplicitCapacity(int minCapacity) {
+        //modCount为当前列表结构被修改的次数
         modCount++;
 
         // overflow-conscious code
@@ -256,7 +271,7 @@ public class ArrayList<E> extends AbstractList<E>
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = elementData.length;
-        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        int newCapacity = oldCapacity + (oldCapacity >> 1);//实现1.5倍扩容
         if (newCapacity - minCapacity < 0)
             newCapacity = minCapacity;
         if (newCapacity - MAX_ARRAY_SIZE > 0)
@@ -428,6 +443,9 @@ public class ArrayList<E> extends AbstractList<E>
      * @param  index index of the element to return
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
+     *
+     * 1、判断是否越界
+     * 2、获取值
      */
     public E get(int index) {
         rangeCheck(index);
@@ -443,6 +461,11 @@ public class ArrayList<E> extends AbstractList<E>
      * @param element element to be stored at the specified position
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException {@inheritDoc}
+     *
+     * 1、判断是否越界
+     * 2、获取旧值
+     * 3、设置新值
+     * 4、返回旧值
      */
     public E set(int index, E element) {
         rangeCheck(index);
@@ -459,7 +482,9 @@ public class ArrayList<E> extends AbstractList<E>
      * @return <tt>true</tt> (as specified by {@link Collection#add})
      */
     public boolean add(E e) {
+        //判断数组是否需要扩容
         ensureCapacityInternal(size + 1);  // Increments modCount!!
+        //将对象添加到数组中
         elementData[size++] = e;
         return true;
     }
@@ -472,6 +497,10 @@ public class ArrayList<E> extends AbstractList<E>
      * @param index index at which the specified element is to be inserted
      * @param element element to be inserted
      * @throws IndexOutOfBoundsException {@inheritDoc}
+     *
+     * 1、判断下标是否越界
+     * 2、判断数组是否需要扩容
+     * 3、移位并将元素添加到指定位置
      */
     public void add(int index, E element) {
         rangeCheckForAdd(index);
@@ -491,6 +520,12 @@ public class ArrayList<E> extends AbstractList<E>
      * @param index the index of the element to be removed
      * @return the element that was removed from the list
      * @throws IndexOutOfBoundsException {@inheritDoc}
+     *
+     * 1、判断下标是否越界
+     * 2、修改次数累加
+     * 3、获取值
+     * 4、移位
+     * 5、末尾置空并返回指定值
      */
     public E remove(int index) {
         rangeCheck(index);
@@ -519,6 +554,10 @@ public class ArrayList<E> extends AbstractList<E>
      *
      * @param o element to be removed from this list, if present
      * @return <tt>true</tt> if this list contained the specified element
+     *
+     * 1、判断是否为空
+     * 2、遍历数组是否为空或者相等
+     * 3、删除指定元素
      */
     public boolean remove(Object o) {
         if (o == null) {
@@ -576,6 +615,10 @@ public class ArrayList<E> extends AbstractList<E>
      * @param c collection containing elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified collection is null
+     *
+     * 1、将集合转化为数组
+     * 2、判断是否需要扩容
+     * 3、将数组拷贝到对象数组中
      */
     public boolean addAll(Collection<? extends E> c) {
         Object[] a = c.toArray();
@@ -600,6 +643,11 @@ public class ArrayList<E> extends AbstractList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException {@inheritDoc}
      * @throws NullPointerException if the specified collection is null
+     *
+     * 1、判断下标是否越界
+     * 2、将集合转化为数组
+     * 3、判断是否需要扩容
+     * 4、将数组拷贝到对象数组中
      */
     public boolean addAll(int index, Collection<? extends E> c) {
         rangeCheckForAdd(index);
@@ -844,8 +892,8 @@ public class ArrayList<E> extends AbstractList<E>
      * An optimized version of AbstractList.Itr
      */
     private class Itr implements Iterator<E> {
-        int cursor;       // index of next element to return
-        int lastRet = -1; // index of last element returned; -1 if no such
+        int cursor;       // index of next element to return 下一个要返回的元素的索引
+        int lastRet = -1; // index of last element returned; -1 if no such 返回的最后一个元素的索引
         int expectedModCount = modCount;
 
         Itr() {}
