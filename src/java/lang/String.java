@@ -111,9 +111,11 @@ import java.util.regex.PatternSyntaxException;
 public final class String
     implements java.io.Serializable, Comparable<String>, CharSequence {
     /** The value is used for character storage. */
+    // String底层使用字符串数组存储
     private final char value[];
 
     /** Cache the hash code for the string */
+    // 缓存字符串哈希值，默认为0
     private int hash; // Default to 0
 
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
@@ -619,6 +621,7 @@ public final class String
      * @return  the length of the sequence of characters represented by this
      *          object.
      */
+    // 获取字符串长度，
     public int length() {
         return value.length;
     }

@@ -33,9 +33,18 @@ package java.lang;
  * @author  unascribed
  * @see     java.lang.Class
  * @since   JDK1.0
+ *
+ * Object 类中大部分方法是native方法，即java本地方法，一般由C/C++实现。
+ * Object 类中没有显示提供构造方法，而是编译器默认提供。
  */
 public class Object {
 
+    /**
+     * 将C/C++中的方法映射到Java中的native方法，实现方法命名解耦。
+     * 类首次加载时在静态代码块中执行该函数。
+     *
+     * 该方法和static块结合使用，在类第一次被加载的时候注册本地方法。
+     */
     private static native void registerNatives();
     static {
         registerNatives();
@@ -59,8 +68,12 @@ public class Object {
      * @return The {@code Class} object that represents the runtime
      *         class of this object.
      * @jls 15.8.2 Class Literals
+     *
+     * 方法被final修饰，不能重写。返回类运行时的类型，且该类被静态同步方法锁定。
+     *
+     * 运行时调用此方法返回对象所属的类，从而完成反射等一系列操作。
      */
-    public final native Class<?> getClass();
+    public final native Class<?> getClass();//返回该对象的运行时类。该返回的Class对象是被静态同步方法锁定的对象。
 
     /**
      * Returns a hash code value for the object. This method is
@@ -96,8 +109,20 @@ public class Object {
      * @return  a hash code value for this object.
      * @see     java.lang.Object#equals(java.lang.Object)
      * @see     java.lang.System#identityHashCode
+     *
+     * 返回hashcode，对象比较时，如果equals相同，则hashcode必然相同；但hashcode相同，不一定是同一对象。
+     * Object的equals方法比较的是引用，
      */
     public native int hashCode();
+
+    /**
+     * 返回一个该对象的哈希值。该方法支持了像HashMap这一类的哈希表的实现。
+     * 哈希值的通用约定是：
+     * 1、在一个java应用执行期间，同一个对象无论调用该方法多少次，该方法返回的哈希值必须是一致的，当然，前提是该对象的equals比较方法用到的信息没有被修改。
+     * 2、如果两个对象根据equals方法得到的结果是true，那么这两个对象分别调用该方法获取的哈希值必须是一致的。
+     * 3、当两个对象根据equals方法得出不相等的情况是，不一定要求这两个对象各自获得的哈希值必须不同。然而，程序员应该意识到，为两个不相等的对象产生不同的哈希值，可能会提高哈希表的性能。
+     * @return
+     */
 
     /**
      * Indicates whether some other object is "equal to" this one.
@@ -144,10 +169,25 @@ public class Object {
      *          argument; {@code false} otherwise.
      * @see     #hashCode()
      * @see     java.util.HashMap
+     *
+     * == 运算符比较基本类型的值是否相同，equals比较两个对象是否相等。
      */
     public boolean equals(Object obj) {
         return (this == obj);
     }
+
+    /**
+     * 表示其他对象是否“等于”这个对象。
+     * 该方法为非空对象实现了一个等价关系：
+     * 1、自反性：如果有一个非空对象x，则x.equals(x)，一定返回true；
+     * 2、对称性：如果有两个非空对象x,y,如果x.equals(y),返回true，那么y.equals(x)也一定返回true；
+     * 3、传递性：如果有三个非空对象x,y,z,如果x.equals(y)返回true，且y.equals(z)返回true，那么x.equals(z)也一定返回true；
+     * 4、一致性：如果有两个非空对象x,y，程序里多次调用equals()方法比较这两个对象，只要中间没有对这两个对象进行修改，那么调用该方法应该每次都返回一致信息。
+     *
+     * 请注意，每当这个方法被覆盖时，通常都需要覆盖hashCode方法，以便维护hashCode方法的一般契约，该方法声明相等的对象必须具有相等的哈希值。
+     * @param obj
+     * @return
+     */
 
     /**
      * Creates and returns a copy of this object.  The precise meaning
